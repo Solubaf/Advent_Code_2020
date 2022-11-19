@@ -8,52 +8,62 @@ const timer = (script, input) => {
 };
 
 const partOne = (input) => {
-    const fields = ["byr","iyr","eyr","hgt","hcl","ecl","pid"];
-    let keys=input.map(x=>{
-            return x.split('\r\n');
-    });
-    console.log(keys);
-    console.log(keys[0]);
-    const parser=keys.forEach((key)=>{key.forEach((k)=>{k.map((x)=>x.split(':'))})});
-    console.log(parser);
-    const count=(id)=>{Object.entries(id).reduce((acc2,key)=>{if(key in fields){return acc2+1;}},0)};
-    const result=input.reduce((acc,id)=>{if(count(id)===7){return acc+1}},0);
-
-    return result;
-    };
-
-    
-    
-    
+    const fields = ['byr', 'iyr', 'eyr', 'hgt', 'hcl', 'ecl', 'pid'];
+    return input.filter((list) => fields.every((key) => list.includes(key))).length;
+};
 
 
 const partTwo = (input) => {
-    const taille = input[0].length-1;
-    const slopes = [[1,1],[3,1],[5,1],[7,1],[1,2]];
-    
-    const slope_line = (p)=>{
-        let deplacement=0;
-        const i=p[0];
-        const j=p[1];
-        const lines = (acc, curr, ind) => {
-            let isTree = 0;
-            if ((ind%j==0)&&(curr[(i * deplacement) % taille] == '#')) {
-                isTree = 1;
+    const fields = ['byr', 'iyr', 'eyr', 'hgt', 'hcl', 'ecl', 'pid'];
+    const criteria= input.filter((list) => fields.every((key) => list.includes(key)));
+    const result=criteria.map((passeport)=>{
+        let criter=0;
+        if((passeport[1+passeport.indexOf('byr')]>=1920)&&(passeport[1+passeport.indexOf('byr')]<=2002)){
+            criter+=1;
+        }
+        if((passeport[1+passeport.indexOf('iyr')]>=2010)&&(passeport[1+passeport.indexOf('iyr')]<=2020)){
+            criter+=1;
+        }
+        if((passeport[1+passeport.indexOf('eyr')]>=2020)&&(passeport[1+passeport.indexOf('eyr')]<=2030)){
+            criter+=1;
+        }
+        if(passeport[1+passeport.indexOf('hgt')][passeport[1+passeport.indexOf('hgt')].length-1]=='m'){
+            const taille=Number(passeport[1+passeport.indexOf('hgt')].replace('cm',''))
+            if((taille>=150)&&(taille<=193)){
+                criter+=1;
             }
-            if(ind%j==0){
-                deplacement++;
+        }
+        if(passeport[1+passeport.indexOf('hgt')][passeport[1+passeport.indexOf('hgt')].length-1]=='n'){
+            const taille=Number(passeport[1+passeport.indexOf('hgt')].replace('in',''))
+            if((taille>=59)&&(taille<=76)){
+                criter+=1;
             }
-            return acc + isTree;
-        };
-        return input.reduce(lines,0);
-    }
-    const result=slopes.map(slope_line);
-    console.log(result);
-    return result.reduce((acc, cur) => acc * cur, 1);
+        }
+        if(passeport[1+passeport.indexOf('hcl')].match(/^[#][a-f0-9]{6}$/)){
+            criter+=1;
+        }
+        const ecl = ['amb', 'blu', 'brn', 'gry', 'grn', 'hzl', 'oth'];
+        if(ecl.includes(passeport[1+passeport.indexOf('ecl')])){
+            criter+=1;
+        }
+        const regex=/^[0-9]{9}$/
+        if(passeport[1+passeport.indexOf('pid')].match(regex)){
+            criter+=1;
+        }
+        return criter;
+    });
+    //
+    return result.filter((x)=>x==7).length;
 };
-//, 'puzzle.in'
-['example.in'].forEach((file) => {
-    const input = fs.readFileSync(`day4/${file}`, 'utf-8').trim().split('\n\r').map(String);
+
+['example.in', 'puzzle.in'].forEach((file) => {
+    const regularExp = /\r\n\r\n/;
+    const separator = /\s|\:/;
+    const input = fs
+        .readFileSync(`day4/${file}`, 'utf-8')
+        .trim()
+        .split(regularExp)
+        .map((list) => list.split(separator));
     console.log(`Result of part one for ${file} : ` + partOne(input) + ` (executed in ${timer(partOne, input)} ms)`);
-    //console.log(`Result of part two for ${file} : ` + partTwo(input) + ` (executed in ${timer(partTwo, input)} ms)`);
+    console.log(`Result of part two for ${file} : ` + partTwo(input) + ` (executed in ${timer(partTwo, input)} ms)`);
 });

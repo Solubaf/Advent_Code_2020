@@ -1,4 +1,3 @@
-import { assert } from 'console';
 import * as fs from 'fs';
 
 const timer = (script, input) => {
@@ -37,18 +36,53 @@ const partOne = (input) => {
         }
         target_colors.push(...new_targets);
     }
-    //console.log(target_colors);
 
     return target_colors.length - 1;
 };
 
 const partTwo = (input) => {
-    
-    return result;
+    const target = ['bag', 'bags', 'bags.', 'bag.', 'bags,', 'bag,'];
+    const word_list = input.map((list) => list.split(' '));
+    const bag_list = word_list.map((line) => {
+        const colors = [];
+        line.map((cur, indice) => {
+            if (target.includes(cur)) {
+                let number = '';
+                if (indice !== 2) {
+                    number = line[indice - 3] + ' ';
+                }
+                colors.push(number + line[indice - 2] + ' ' + line[indice - 1]);
+                return cur;
+            }
+        });
+        
+        return colors;
+    });
+    const color_list=bag_list.map(x=>x[0]);
+    let single_bags = bag_list.filter((x) => x[1] === 'contain no other');
+    single_bags=single_bags.map(x=>x[0]);
+    const bag_value = (x) => {
+        if (single_bags.includes(x)) {
+            return 1;
+        } else {
+            const index = color_list.indexOf(x);
+            const bag = bag_list[index];
+            return 1+bag.reduce((acc, cur, ind) => {
+                if (ind > 0) {
+                    const color = cur.split(' ');
+                    return acc + cur[0] * bag_value(color[1] +' '+ color[2]);
+                } else {
+                    return acc;
+                }
+            }, 0);
+        }
+    };
+    return bag_value('shiny gold')-1;
 };
+
 //
-['example.in', 'puzzle.in'].forEach((file) => {
+['example.in', 'example2.in', 'puzzle.in'].forEach((file) => {
     const input = fs.readFileSync(`day7/${file}`, 'utf-8').trim().split('\r\n');
     console.log(`Result of part one for ${file} : ` + partOne(input) + ` (executed in ${timer(partOne, input)} ms)`);
-    //console.log(`Result of part two for ${file} : ` + partTwo(input) + ` (executed in ${timer(partTwo, input)} ms)`);
+    console.log(`Result of part two for ${file} : ` + partTwo(input) + ` (executed in ${timer(partTwo, input)} ms)`);
 });

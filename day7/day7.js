@@ -24,8 +24,7 @@ const partOne = (input) => {
     const target_colors = ['shiny gold'];
     let remaining_colors = color_list.map((x) => x[0]).filter((x) => !target_colors.includes(x));
     let size = 0;
-    let index = 0;
-    while (target_colors.length !== size && index < 50) {
+    while (target_colors.length !== size) {
         size = target_colors.length;
         const new_targets = [];
         for (var i = 0; i < size; i++) {
@@ -36,7 +35,6 @@ const partOne = (input) => {
                 new_targets.push(...list_targets);
             }
         }
-        index++;
         target_colors.push(...new_targets);
     }
     //console.log(target_colors);
@@ -45,24 +43,7 @@ const partOne = (input) => {
 };
 
 const partTwo = (input) => {
-    const yes = (list) => {
-        let letters = [];
-        const answers = list.split('\r\n');
-        answers[0].split('').map((curr) => {
-            if (!letters.includes(curr)) {
-                letters.push(curr);
-            }
-            return curr;
-        });
-        if (answers.length > 1) {
-            answers.slice(1).map((answer) => {
-                letters = letters.filter((curr) => answer.includes(curr));
-            });
-        }
-        return letters.length;
-    };
-
-    const result = input.reduce((acc, curr) => acc + yes(curr), 0);
+    
     return result;
 };
 //
